@@ -1,0 +1,498 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+h1 {
+    color: #e60012;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    color: #0066cc;
+    font-size: 1.4rem;
+}
+
+.lottery-machine {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.machine-container {
+    background: linear-gradient(to bottom, #f2f2f2, #e6e6e6);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+    border: 5px solid #d1d1d1;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.machine-container::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 25px;
+    background-color: #c0c0c0;
+    border-radius: 15px 15px 0 0;
+    z-index: -1;
+}
+
+.red-balls-container, .blue-balls-container {
+    position: relative;
+    width: 45%;
+    height: 180px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.red-balls-container {
+    border: 2px solid #e60012;
+}
+
+.blue-balls-container {
+    border: 2px solid #0066cc;
+}
+
+.balls-circle {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+.ball {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    margin: 2px;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    z-index: 1;
+}
+
+.red-ball {
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #e60012);
+}
+
+.blue-ball {
+    background: radial-gradient(circle at 30% 30%, #5c9eff, #0066cc);
+}
+
+.ball.selected {
+    animation: bounce 0.6s ease forwards;
+    z-index: 10;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    z-index: 1;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn.touch-active, .btn:active {
+    background-color: #ff3340 !important;
+    transform: scale(0.97) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+#generateBtn {
+    background-color: #e60012;
+    color: white;
+}
+
+#generateBtn:hover {
+    background-color: #ff3340;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(230, 0, 18, 0.2);
+}
+
+#generateBtn:disabled {
+    background-color: #ccc;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+#resetBtn {
+    background-color: #0066cc;
+    color: white;
+}
+
+#resetBtn:hover, #resetBtn:active {
+    background-color: #0080ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 102, 204, 0.2);
+}
+
+#resetBtn:disabled {
+    background-color: #ccc;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.result {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+/* 确保红球和蓝球横向排列 */
+#redNumbers, #blueNumbers {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.selected-numbers {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.red-numbers, .blue-numbers {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.selected-ball {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    opacity: 0;
+    transform: scale(0);
+    animation: popIn 0.5s forwards;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+.selected-red {
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #e60012);
+}
+
+.selected-blue {
+    background: radial-gradient(circle at 30% 30%, #5c9eff, #0066cc);
+    margin-left: 15px;
+}
+
+.lucky-message {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #4CAF50;
+    min-height: 1.5rem;
+    opacity: 0;
+    animation: fadeIn 1s 1s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.install-tip {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #888;
+    padding: 0.5rem;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+/* Animation for balls movement */
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(5px, 5px) rotate(5deg); }
+    50% { transform: translate(0, 10px) rotate(0deg); }
+    75% { transform: translate(-5px, 5px) rotate(-5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+    
+    h3 {
+        font-size: 1.2rem;
+    }
+    
+    .machine-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .red-balls-container, .blue-balls-container {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .ball, .selected-ball {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .controls {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 1rem;
+    }
+}
+
+/* 竖屏手机的优化 */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.8rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1rem;
+    }
+    
+    .machine-container {
+        padding: 0.8rem;
+    }
+    
+    .red-balls-container, .blue-balls-container {
+        height: 120px;
+    }
+    
+    .ball, .selected-ball {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* 横屏优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    h1 {
+        font-size: 1.2rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    h2 {
+        font-size: 1rem;
+    }
+    
+    .lottery-machine {
+        margin-bottom: 0.8rem;
+    }
+    
+    .machine-container {
+        padding: 0.5rem;
+        flex-direction: row;
+    }
+    
+    .red-balls-container, .blue-balls-container {
+        height: 100px;
+    }
+    
+    .ball, .selected-ball {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8rem;
+    }
+    
+    .controls {
+        margin-bottom: 0.8rem;
+    }
+    
+    .result {
+        padding: 0.8rem;
+    }
+    
+    h3 {
+        margin-bottom: 0.5rem;
+    }
+    
+    footer {
+        margin-top: 0.5rem;
+    }
+}
+
+/* 媒体查询确保在小屏幕上垂直排列球容器 */
+@media (max-width: 600px) {
+    .machine-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .red-balls-container, .blue-balls-container {
+        width: 100%;
+        height: 150px;
+    }
+} 

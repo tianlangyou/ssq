@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#e60012">
+    <title>双色球选号 - 离线状态</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #e60012;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #e60012;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #0080ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            display: none;
+        }
+        
+        .status.online {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status.offline {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 102, 204, 0.3);
+            border-radius: 50%;
+            border-top-color: #0066cc;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📶</div>
+        <h1>网络连接已断开</h1>
+        <p>您的设备当前处于离线状态，无法访问双色球选号应用。</p>
+        <p>请检查您的网络连接，然后重试。</p>
+        
+        <div id="networkStatus" class="status">
+            检测网络状态中...
+        </div>
+        
+        <button id="checkConnection" class="btn">检查网络连接</button>
+        <br>
+        <a href="./index.html" class="btn">重新尝试</a>
+    </div>
+    
+    <script>
+        // 状态显示元素
+        const statusElement = document.getElementById('networkStatus');
+        const checkButton = document.getElementById('checkConnection');
+        
+        // 检查网络连接
+        function checkConnection() {
+            statusElement.style.display = 'block';
+            statusElement.innerHTML = '<span class="loading"></span> 正在检查网络连接...';
+            statusElement.className = 'status';
+            
+            // 创建一个很小的请求来测试连接
+            fetch('./manifest.json?_=' + new Date().getTime(), { 
+                method: 'HEAD',
+                cache: 'no-store'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 网络连接正常
+                    statusElement.textContent = '✅ 网络连接已恢复，即将跳转...';
+                    statusElement.className = 'status online';
+                    
+                    // 3秒后跳转
+                    setTimeout(() => {
+                        window.location.href = './index.html';
+                    }, 3000);
+                } else {
+                    // 服务器响应异常
+                    statusElement.textContent = '❌ 服务器响应异常，请稍后再试';
+                    statusElement.className = 'status offline';
+                }
+            })
+            .catch(error => {
+                // 网络连接仍然不可用
+                statusElement.textContent = '❌ 网络连接仍然不可用，请检查您的网络设置';
+                statusElement.className = 'status offline';
+            });
+        }
+        
+        // 按钮点击事件
+        checkButton.addEventListener('click', checkConnection);
+        
+        // 监听在线状态变化
+        window.addEventListener('online', function() {
+            statusElement.style.display = 'block';
+            statusElement.textContent = '✅ 网络连接已恢复，即将跳转...';
+            statusElement.className = 'status online';
+            
+            // 3秒后跳转
+            setTimeout(() => {
+                window.location.href = './index.html';
+            }, 3000);
+        });
+        
+        window.addEventListener('offline', function() {
+            statusElement.style.display = 'block';
+            statusElement.textContent = '❌ 网络连接已断开';
+            statusElement.className = 'status offline';
+        });
+        
+        // 每30秒自动检查一次连接状态
+        setInterval(checkConnection, 30000);
+        
+        // 页面加载时显示当前状态
+        document.addEventListener('DOMContentLoaded', function() {
+            if (navigator.onLine) {
+                statusElement.style.display = 'block';
+                statusElement.textContent = '✅ 网络连接可用，但应用加载失败';
+                statusElement.className = 'status online';
+            } else {
+                statusElement.style.display = 'block';
+                statusElement.textContent = '❌ 网络连接不可用';
+                statusElement.className = 'status offline';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图标生成器</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f0f0f0;
+        }
+        .icon-container {
+            position: relative;
+            width: 192px;
+            height: 192px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .red-ball {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #e60012);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(230, 0, 18, 0.3);
+            z-index: 2;
+        }
+        .blue-ball {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #5c9eff, #0066cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+            z-index: 1;
+        }
+        button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        a {
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="icon-container" id="iconContainer">
+            <div class="red-ball" style="top: 40px; left: 30px;">6</div>
+            <div class="red-ball" style="top: 70px; left: 100px;">9</div>
+            <div class="red-ball" style="top: 110px; left: 50px;">7</div>
+            <div class="blue-ball" style="top: 60px; right: 30px;">1</div>
+        </div>
+        <button id="downloadBtn">下载图标</button>
+        <div id="instructions" style="margin-top: 20px; font-size: 14px;">
+            <p>1. 点击"下载图标"按钮</p>
+            <p>2. 保存图片到您的设备</p>
+            <p>3. 使用图片编辑软件将其裁剪为正方形</p>
+            <p>4. 重命名为 icon-192.png 并放入项目文件夹</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const iconContainer = document.getElementById('iconContainer');
+            
+            // 使用html2canvas或其他方法将div转换为图像
+            // 这里我们使用一个简单的方法 - canvas绘制
+            const canvas = document.createElement('canvas');
+            canvas.width = 192;
+            canvas.height = 192;
+            const ctx = canvas.getContext('2d');
+            
+            // 绘制背景
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 192, 192);
+            
+            // 创建一个圆角矩形
+            ctx.fillStyle = '#f5f5f5';
+            ctx.beginPath();
+            ctx.moveTo(40, 0);
+            ctx.lineTo(152, 0);
+            ctx.quadraticCurveTo(192, 0, 192, 40);
+            ctx.lineTo(192, 152);
+            ctx.quadraticCurveTo(192, 192, 152, 192);
+            ctx.lineTo(40, 192);
+            ctx.quadraticCurveTo(0, 192, 0, 152);
+            ctx.lineTo(0, 40);
+            ctx.quadraticCurveTo(0, 0, 40, 0);
+            ctx.fill();
+            
+            // 绘制红球
+            drawBall(ctx, 30, 40, 30, '#ff6b6b', '#e60012', '6');
+            drawBall(ctx, 100, 70, 30, '#ff6b6b', '#e60012', '9');
+            drawBall(ctx, 50, 110, 30, '#ff6b6b', '#e60012', '7');
+            
+            // 绘制蓝球
+            drawBall(ctx, 140, 60, 30, '#5c9eff', '#0066cc', '1');
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = 'icon-192.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        function drawBall(ctx, x, y, radius, gradientStart, gradientEnd, text) {
+            // 创建径向渐变
+            const gradient = ctx.createRadialGradient(
+                x - radius * 0.3, y - radius * 0.3, radius * 0.1,
+                x, y, radius
+            );
+            gradient.addColorStop(0, gradientStart);
+            gradient.addColorStop(1, gradientEnd);
+            
+            // 绘制球体
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制文字
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+    </script>
+</body>
+</html> 
