@@ -490,7 +490,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         return true; // 未达到限制，可以继续
     }
-    
+
+    // 获取号码出现频率，用于智能选号
+    function getNumberFrequency() {
+        try {
+            const history = JSON.parse(localStorage.getItem('selectedNumbersHistory') || '[]');
+            const redFreq = {};
+            const blueFreq = {};
+            history.forEach(entry => {
+                (entry.redBalls || entry.red || []).forEach(num => {
+                    redFreq[num] = (redFreq[num] || 0) + 1;
+                });
+                (entry.blueBalls || entry.blue || []).forEach(num => {
+                    blueFreq[num] = (blueFreq[num] || 0) + 1;
+                });
+            });
+            return { red: redFreq, blue: blueFreq };
+        } catch (e) {
+            console.error('计算号码频率出错:', e);
+            return { red: {}, blue: {} };
+        }
+    }
+
     // 修改saveSelectedNumbers函数
     function saveSelectedNumbers() {
         // 使用通用函数获取日期
@@ -1257,9 +1278,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 (async function() {
                     await delay(1500); // Wait for shaking to complete
                     
+                    // 获取历史频率用于智能选号
+                    const freq = getNumberFrequency();
+
                     // Select red balls
                     for (let i = 0; i < RED_SELECTION_COUNT; i++) {
-                        const num = await selectRandomBall(redBalls, selectedRedBalls, redNumbers, 'selected-red');
+                        const num = await selectRandomBall(redBalls, selectedRedBalls, redNumbers, 'selected-red', freq.red);
                         if (num) window.selectedRedBalls.push(num); // 更新全局数组
                         
                         // Vibrate slightly for each ball selection
@@ -1271,7 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Select blue balls
                     for (let i = 0; i < BLUE_SELECTION_COUNT; i++) {
-                        const num = await selectRandomBall(blueBalls, selectedBlueBalls, blueNumbers, 'selected-blue');
+                        const num = await selectRandomBall(blueBalls, selectedBlueBalls, blueNumbers, 'selected-blue', freq.blue);
                         if (num) window.selectedBlueBalls.push(num); // 更新全局数组
                         
                         // Stronger vibration for blue ball
@@ -1435,21 +1459,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Select a random ball from the array
-    async function selectRandomBall(ballsArray, selectedArray, displayContainer, selectedClass) {
+    // Select a ball, optionally using频率信息智能选择
+    async function selectRandomBall(ballsArray, selectedArray, displayContainer, selectedClass, freqMap) {
         // Filter out already selected balls
-        const availableBalls = ballsArray.filter(ball => 
+        const availableBalls = ballsArray.filter(ball =>
             ball && ball.dataset && !selectedArray.includes(parseInt(ball.dataset.number))
         );
-        
+
         if (availableBalls.length === 0) {
             console.error('没有可用的球进行选择');
             return null;
         }
-        
-        // Pick a random ball
-        const randomIndex = Math.floor(Math.random() * availableBalls.length);
-        const selectedBall = availableBalls[randomIndex];
+
+        let candidateBalls = availableBalls;
+        if (freqMap) {
+            let min = Infinity;
+            availableBalls.forEach(ball => {
+                const num = parseInt(ball.dataset.number);
+                const f = freqMap[num] || 0;
+                if (f < min) min = f;
+            });
+            candidateBalls = availableBalls.filter(ball => {
+                const num = parseInt(ball.dataset.number);
+                return (freqMap[num] || 0) === min;
+            });
+        }
+
+        // Pick a random ball from candidates
+        const randomIndex = Math.floor(Math.random() * candidateBalls.length);
+        const selectedBall = candidateBalls[randomIndex];
         const ballNumber = parseInt(selectedBall.dataset.number);
         
         // Highlight the ball in the machine
